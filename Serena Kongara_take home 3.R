@@ -11,13 +11,17 @@ cat("\014")
 #	Dependencies: Script requires use of the tidyverse and devtools packages but only for illustrative purposes. All other functions are containes in base R installs as of version 3.5.3.
 #---------------------------------------------------------------------
 
+# CLOSE BOX FULLY and DONT WRITE REALLY LONG LINES less that 80 characters is best
+
 library(tidyverse)
-library(devtools)
+library(devtools) # not necessary here
 
 date()
-current_date <- date()
+current_date <- date() # dont assign unless you need it later. 
 
-devtools::session_info()
+devtools::session_info() # duplicative unless only in my demonstration to show you option
 sessionInfo()
 
 head(diamonds, n=6)
+
+# this works well and nicely done. 100% credit. 
