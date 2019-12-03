@@ -54,6 +54,7 @@ my_data <- read_csv("C:/Users/skongara/Downloads/ghana_bednet.csv")
 my_data$sex[my_data$sex == "."] <- NA
 my_data$sex[my_data$sex == "F"] <- NA
 describe(my_data$sex)
+#be careful with how you treated entries of "F," you reassigned these are missing when they are not missing. If you were reporting this in a manuscript, you can state that you are treating F as missing; however for this exercise, we can fairly assume F stands for female. 
 ```
 3. The proportion of male children represented in the data set is .505. 
 
@@ -64,13 +65,17 @@ describe(my_data$sex)
 prop.table(table(my_data$sex))
 follyr_complete <- my_data[complete.cases(my_data), ]
 sum(follyr_complete[follyr_complete$'follyr'& follyr_complete$sex == "1", 3])
-
+#as a result from the complete.cases command, you are dropping six observations (from rows where sex is missing) in addition to two other observations (due to missing values in other variables outside of the sex variable) for a total of 26334 obs in the dataset called follyr_complete. This is fine as this isn't a major issue with your syntax; however, do be careful with how your commands result in you dropping observations when you may not want to drop them. The error comes from your sum operation. You correctly extract by sex but you neglect to include intervention areas (bednet=1). Once you fix this, you will get a much lower follow-up time. The correct answer is 8395.18. Overall, good attempt at using the complete.cases command and applying this concept covered in lecture!
 ```
 4. The total number of years of follow up experienced by female children in intervention areas is 328680.9. 
 
 ```{r question 5}
 #code for number 5
 prop.table(table(my_data$outcome == "1" & my_data$cluster ==52))
+
+#your above syntax isn't considering the denominator of the proportion you have produced. Perhaps a good way to start thinking about it is by filtering your dataset to only summarise for cluster 52 and then your summarisation be of a variable that calculates the proportion you want (outcome/n in cluster 52) shown below
+died52 <- my_data %>% filter(cluster == 52) %>%
+  summarise(prop_died = sum(outcome)/length(outcome))
 ```
 5. The proportion of children in cluster 52 who died during their follow up is .0003416597. 
 
@@ -87,6 +92,7 @@ newdata <- my_data [ which(my_data$bednet=='0'), ]
 newdata <- mutate(newdata, agefollow = cut(follyr, breaks= c(0, 1, 2)))
 mytable <- table(newdata$agefollow, newdata$outcome)
 prop.table(mytable)
+
 newdata1 <- my_data [which(my_data$bednet=='1'), ]
 newdata1 <- mutate(newdata1, agefollow = cut(follyr, breaks= c(0, 1, 2)))
 mytable1 <- table(newdata1$agefollow, newdata1$outcome)
@@ -95,12 +101,14 @@ prop.table(mytable1)
 7.The moratlity rate in the first year of follow up for the control group is 2.8%  and in the second year is .6% .
 The mortality rate in the first year of follow up for the control group is 2.4% and in the second year is .5% .
 
+#I can certainly see how you could deduce that the follow-up period for these pediatric subjects was 2 years (no one had a follow-up time greater than 2 years). However, for how the question is posed, we are treating follow-up time as a continuous varible; thus, we treat follow-up time as such and it is not necessary to transform follow-up time to factor levels (as you did above). Nonetheless, good attempt in using the mutate and cut functions covered in lecture! Furthermore, due to the way you transformed your data with the cut function, your analysis produces mortality as a proportion; however this is not correct as the question asks for a mortality rate (please note, a rate and a proportion are different measures of association). Thus, you would need to calculate the number of deaths in intervention group/ total time contributed for all children in intervention group; and the same for those in the non-intervention group (no bednets).
 
 ```{r question 8}
 #code for number 8 
 counts <- table(my_data$outcome,  my_data$cluster)
 barplot (counts, main= "8. Cluster vs Outcome", xlab="Outcome", col=c("darkblue", "red") , legend = rownames(counts))
 ```
+# Good job providing a title to your graph and labeling your axes; however you mistakenly graphed the counts of death and not the proportion of deaths.
 
 ```{r question 9}
 #code for number 9 
@@ -115,6 +123,9 @@ prop.table(atable)
 fisher.test(table(my_data$bednet, my_data$outcome))
 
 ```
-10. Being in an intervention cluster was associated with a lower probabaility of dying during the course of the trial. The odds ratio was .8358001 and the p value was .01016.
+10. Being in an intervention cluster was associated with a lower probability of dying during the course of the trial. The odds ratio was .8358001 and the p value was .01016.
+
+#your interpretation of the coefficient and odds ratio above is correct; however, it would be appropriate to use the output from the logistic regression you ran in question 9. Probability of dying does decrease in intervention areas (used bednets) and the odds ratio can be calculated by taking the exp( -0.17937) -> 0.8358. Using the chi-square or fisher exact statistics are not appropriate analytic approaches as they produce crude estimates of association (does not adjust for confounders which can be adjusted for in logistic regression) and more importantly, chi-square/fisher tests does not take into account attrition in participation of subjects (i.e. loss to follow up) which logistic regression does account for.
 
 
+# excellent preamble and well annotated script; good attempt at applying the concepts we are covering in lecture just be aware 1) of dropping observations you may actually need for your analysis and 2) what form your data needs to be in in order to properly interpret it when running statistical methods.
