@@ -1,0 +1,220 @@
+---
+title: "Exam 3"
+author: "Serena Kongara"
+date: "12/11/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#-------------------------------------------------------------------------------
+#
+#Exam 3
+#Serena Kongara December 15th 2019 skongara@tulane.edu
+#
+#This script provides the code and answers to exam 3
+#
+#It requires the use of the ggplot2, tidyverse, devtools, funModeling, Hmisc, plyr, dplyr, datasets and car packages.
+# It was developed in R 3.5.1. rmarkdown is automatically handled by rstudio.
+#-------------------------------------------------------------------------------
+#loading required libraries
+library(ggplot2)
+library(tidyverse)
+library(devtools)
+library(funModeling)
+library(Hmisc)
+library(plyr)
+library(dplyr)
+library(datasets)
+library(car)
+#set any other options---
+# none
+```
+
+```{r docinfo, include = FALSE}
+# print and get runtime ----
+date()
+# session info ----
+devtools::session_info()
+sessionInfo()
+```
+
+```{r data, include = FALSE}
+#code for number 1 and 2
+my_data <- read_csv("/Users/serenakongara/Desktop/exam3/nola_crime_2018.csv")
+```
+
+1. There are 9970 observations in the data set. 
+2. There are 24 variables in the data set. 
+
+```{r, question 3}
+
+unique <- unique(my_data$Item_Number)
+ length(unique(my_data$Item_Number))
+
+
+```
+
+3. There are 9384 unique item numbers in the data set. 
+
+``` {r, question 4}
+data2<-subset(my_data, !duplicated(my_data$Item_Number))
+summary(data2)
+table(data2$Signal_Description, data2$GNOCDC_LAB=="IRISH CHANNEL")
+```
+4. There is one aggravated crime in the Irish Channel neighborhood. 
+``` {r, question 5}
+
+question5<- count(data2, "GNOCDC_LAB")
+question5 %>% arrange(desc(freq))
+
+
+
+```
+5. The two neighborhoods with the highest number of crime reports are 
+the French Quarter and Little Woods. 
+
+```{r, question 6}
+crimepercity<-table(data2$GNOCDC_LAB)
+print(crimepercity)
+pop2<- table(data2$pop)
+print(pop2)
+crimeperpop<- (crimepercity/pop2) *1000   #per 1000 people
+print(crimeperpop)
+
+
+```
+
+```{r, question 7}
+question7<- count(data2, "GNOCDC_LAB", "pop") 
+question7 %>% arrange(desc(freq))
+littlewoods<- subset(data2, GNOCDC_LAB == 'LITTLE WOODS')
+describe(littlewoods)
+
+```
+7. The largest neighborhood by population in the dataset is Little Woods. Its population is 44947.
+
+```{r, question 8}
+#to find the number of unique crimes
+summary(data2$GNOCDC_LAB== "FLORIDA DEV")
+#to find the population size
+floridadev <- subset(data2, GNOCDC_LAB == 'FLORIDA DEV')
+describe(floridadev)
+```
+8. According to the table from question 6, Florida Dev has the lowest crime rate. The population size of Florida Dev is  4976 and the number of unique crimes is 6. 
+```{r, question 9}
+LAKEWOOD <- count(data2$GNOCDC_LAB == "LAKEWOOD")
+print(LAKEWOOD)
+#10 unique crimes in lakewood
+question9<- table(data2$GNOCDC_LAB)/10
+print(question9)
+
+```
+
+
+
+```{r, question 10}
+aggravated<- data2 %>% filter(GNOCDC_LAB == "FRENCH QUARTER") %>%
+print(aggravated)
+#15 aggravated crimes in the French Quarter
+
+
+#data only includes aggravated crimes
+newdata <- subset(data2, Signal_Type %in% c('60D','60','55','51','42', '42U', '42M', '37D','37','34S', '34D', '34C','34')) 
+question10 <-table(newdata$GNOCDC_LAB)/15
+print(question10)
+
+
+
+
+```
+
+```{r, question 11}
+ 
+question11<-count(data2$Signal_Description)
+question11 %>% arrange(desc(freq))
+
+question11b <- count(data2$Charge_Description)
+question11b %>% arrange(desc(freq))
+```
+11. The most common cause for a police report to be filed is Disturbance(Domestic) and the most common charge to be filed is Theft. 
+
+``` {r, question 12}
+
+str(data2$pop)
+
+question12 <-table(data2$Signal_Description== "DISTURBANCE (DOMESTIC)", data2$GNOCDC_LAB)
+print(question12)
+prop.table(question12)*100 #to make percentages
+```
+
+
+```{r, question 13}
+
+agepercity<-table(data2$Victim_Age,data2$GNOCDC_LAB)
+print(agepercity)
+simple.fit = lm(crimepercity~agepercity,  data=data2)
+summary(simple.fit)
+
+
+```
+
+
+```{r, question 14}
+question14 <-count(data2, 'GNOCDC_LAB')
+a<- question14 %>% arrange(desc(freq))
+question14a<- count(data2,'GNOCDC_LAB', 'pop')
+b<-question14a %>% arrange(desc(freq))
+full_join(a,b)
+
+
+
+```
+14. The location with the highest pop and lowest reported crime is VILLAGE DE LEST. The population is	1882930 and there are only 74 crimes.
+
+``` {r, question 15}
+poisson <- rpois(10000, lambda=4.7)
+hist(poisson, main="A histogram of a Poisson distribution")
+
+```
+
+```{r, question 16}
+data(iris)
+summary(iris)
+
+
+
+answer <- list()
+for(n in names(split)){   
+   data <- split[[n]]   
+   answer[[n]] <- data.frame(species=n,
+                          mean.sepal.length=mean(data$Sepal.Length))
+}
+print(answer)
+```
+
+16. The mean sepal length for the setosa is 5.006, for the versicolor 5.936, and for the virginica 6.588.
+
+``` {r, question 17}
+data(mtcars)
+summary(mtcars)
+
+ggplot(mtcars, aes(x=mpg, y=disp, color=cyl)) +
+  geom_point() + geom_smooth(method = "lm", se = FALSE)
+
+```
+
+
+``` {r, question 18}
+vector18 <- c(-4.89, -1.93, -1.11, 3.94, 0.46, -3.85, -0.20, 6.04,9.36, 7.26, 4.88, 13.45, -2.93, 6.39, -16.22, -3.24, 6.86, 11.87, 1.81, -2.54)
+
+
+zscore <- function(x) {
+   
+   zscore = (x - mean(x))/sd(x)
+  return(zscore)}
+  
+zscore(vector18) 
+
+```
