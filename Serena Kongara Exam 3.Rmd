@@ -69,8 +69,6 @@ table(data2$Signal_Description, data2$GNOCDC_LAB=="IRISH CHANNEL")
 question5<- count(data2, "GNOCDC_LAB")
 question5 %>% arrange(desc(freq))
 
-
-
 ```
 5. The two neighborhoods with the highest number of crime reports are 
 the French Quarter and Little Woods. 
@@ -80,9 +78,9 @@ crimepercity<-table(data2$GNOCDC_LAB)
 print(crimepercity)
 pop2<- table(data2$pop)
 print(pop2)
-crimeperpop<- (crimepercity/pop2) *1000   #per 1000 people
+crimeperpop<- (crimepercity*1000/pop2)    #per 1000 people
 print(crimeperpop)
-
+#you produced the no. crimes and population figures correctly but your crimepercity object is not behaving correctly to produce the correct crime rates per 1000 persons
 
 ```
 
@@ -101,14 +99,18 @@ summary(data2$GNOCDC_LAB== "FLORIDA DEV")
 #to find the population size
 floridadev <- subset(data2, GNOCDC_LAB == 'FLORIDA DEV')
 describe(floridadev)
+
+#lowest crime rates was Lakewood
 ```
 8. According to the table from question 6, Florida Dev has the lowest crime rate. The population size of Florida Dev is  4976 and the number of unique crimes is 6. 
+
 ```{r, question 9}
 LAKEWOOD <- count(data2$GNOCDC_LAB == "LAKEWOOD")
 print(LAKEWOOD)
 #10 unique crimes in lakewood
 question9<- table(data2$GNOCDC_LAB)/10
 print(question9)
+#since we are wanting to produce rate ratios, the number of unique crimes in lakewood wouldn't be the only measure to include in the denominator as part of the reference ratio (as you indicate above in your code); you would produce a rate ratio for each neighborhood, therefore, you would include in the numerator the crime rate for neighborhood 1, etc. and crime rate for Lakewood in the denominator
 
 ```
 
@@ -125,7 +127,7 @@ newdata <- subset(data2, Signal_Type %in% c('60D','60','55','51','42', '42U', '4
 question10 <-table(newdata$GNOCDC_LAB)/15
 print(question10)
 
-
+#number of aggravated crimes in the French Quarter is correct, however, you rate ratios are still not correct due to the same issue in the previous question of how to set-up the calculation for a ratio ratio
 
 
 ```
@@ -146,7 +148,10 @@ str(data2$pop)
 
 question12 <-table(data2$Signal_Description== "DISTURBANCE (DOMESTIC)", data2$GNOCDC_LAB)
 print(question12)
+#this yielded the correct number of domestic disturbances by neighborhood; however we are interested in the rate (not proportion)
+
 prop.table(question12)*100 #to make percentages
+
 ```
 
 
@@ -154,9 +159,9 @@ prop.table(question12)*100 #to make percentages
 
 agepercity<-table(data2$Victim_Age,data2$GNOCDC_LAB)
 print(agepercity)
-simple.fit = lm(crimepercity~agepercity,  data=data2)
+simple.fit <- lm(crimepercity~agepercity,  data=data2)
 summary(simple.fit)
-
+#error found: variable lengths differ for variable agepercity, and as a result the object simple.fit was not found; model didn't run
 
 ```
 
@@ -168,7 +173,7 @@ question14a<- count(data2,'GNOCDC_LAB', 'pop')
 b<-question14a %>% arrange(desc(freq))
 full_join(a,b)
 
-
+#your numerator is correct, but your denominator (population figures) are extremely high; the correct answer is Lakewood as the neighborhood likely to have the worst police responsiveness (10 crime incidents, population= 13989, crime rate=0.715)
 
 ```
 14. The location with the highest pop and lowest reported crime is VILLAGE DE LEST. The population is	1882930 and there are only 74 crimes.
@@ -182,8 +187,6 @@ hist(poisson, main="A histogram of a Poisson distribution")
 ```{r, question 16}
 data(iris)
 summary(iris)
-
-
 
 answer <- list()
 for(n in names(split)){   
